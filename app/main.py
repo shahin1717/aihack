@@ -1,51 +1,34 @@
+import os
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
-from app.database.connection import Base, engine
-from app.routers.auth_router import router as auth_router
-from app.routers.employee_router import router as employee_router
-from app.routers.campaign_router import router as campaign_router
-from app.routers.track_router import router as track_router
-from app.routers.dashboard_router import router as dashboard_router
-from app.routers.ai_router import router as ai_router
+app = FastAPI(title="PhishGuard API")
 
+BASE_DIR = os.path.dirname(__file__)
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+PAGES_DIR = os.path.join(FRONTEND_DIR, "pages")
 
-# Create all DB tables
-Base.metadata.create_all(bind=engine)
+# Serve CSS/JS
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-app = FastAPI(
-    title="PhishGuard API",
-    description="A phishing simulation and training platform",
-    version="1.0.0"
-)
+# Serve pages
+@app.get("/")
+def index():
+    return FileResponse(os.path.join(PAGES_DIR, "index.html"))
 
+@app.get("/auth.html")
+def auth_page():
+    return FileResponse(os.path.join(PAGES_DIR, "auth.html"))
 
-# ------------------------
-# CORS (for your frontend)
-# ------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],       # change later if needed
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@app.get("/employees.html")
+def employees_page():
+    return FileResponse(os.path.join(PAGES_DIR, "employees.html"))
 
+@app.get("/campaigns.html")
+def campaigns_page():
+    return FileResponse(os.path.join(PAGES_DIR, "campaigns.html"))
 
-# ------------------------
-# HEALTH CHECK
-# ------------------------
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
-# ------------------------
-# INCLUDE ROUTERS
-# ------------------------
-app.include_router(auth_router)
-app.include_router(employee_router)
-app.include_router(campaign_router)
-app.include_router(track_router)
-app.include_router(dashboard_router)
-app.include_router(ai_router)
+@app.get("/dashboard.html")
+def dashboard_page():
+    return FileResponse(os.path.join(PAGES_DIR, "dashboard.html"))

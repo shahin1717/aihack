@@ -1,0 +1,151 @@
+/* --------- GLOBAL MATERIAL DESIGN ----------- */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+header {
+  background: #1e293b;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.container {
+  padding: 24px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.card {
+  background: #1e293b;
+  padding: 20px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.4);
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  opacity: .85;
+}
+input, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+input:focus, textarea:focus {
+  border-color: #60a5fa;
+}
+
+button {
+  margin-top: 14px;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+button.secondary {
+  background: #475569;
+}
+
+button.secondary:hover {
+  background: #334155;
+}
+
+.pill {
+  background: #334155;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th, td {
+  padding: 10px 6px;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+}
+
+th {
+  opacity: 0.7;
+}
+
+pre {
+  background: #0f172a;
+  padding: 12px;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 320px;
+}
+
+.navbar {
+  display: flex;
+  gap: 12px;
+  background: #0f172a;
+  padding: 10px 24px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.navbar a {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.navbar a.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.navbar a:hover {
+  background: #1e293b;
+}
+
+small {
+  color: #94a3b8;
+}

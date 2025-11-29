@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PhishGuard – Login</title>
+    <link rel="stylesheet" href="/static/material.css">
+</head>
+
+<body>
+<header>
+    <h1>PhishGuard Admin</h1>
+</header>
+
+<div class="navbar">
+    <a href="/auth.html" class="active">Auth</a>
+    <a href="/employees.html">Employees</a>
+    <a href="/campaigns.html">Campaigns</a>
+    <a href="/dashboard.html">Dashboard</a>
+</div>
+
+<div class="container">
+
+    <!-- Register -->
+    <div class="card">
+        <h2>Create Admin Account</h2>
+
+        <label>Email</label>
+        <input id="reg-email" type="email">
+
+        <label>Password</label>
+        <input id="reg-password" type="password">
+
+        <button onclick="registerAdmin()">Register & Login</button>
+        <small id="reg-status"></small>
+    </div>
+
+    <!-- Login -->
+    <div class="card">
+        <h2>Login</h2>
+
+        <label>Email</label>
+        <input id="login-email" type="email">
+
+        <label>Password</label>
+        <input id="login-password" type="password">
+
+        <button onclick="login()">Login</button>
+        <small id="login-status"></small>
+    </div>
+
+</div>
+
+<script src="/static/auth.js"></script>
+<script src="/static/utils.js"></script>
+
+</body>
+</html>

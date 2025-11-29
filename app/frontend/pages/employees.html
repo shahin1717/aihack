@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees – PhishGuard</title>
+    <link rel="stylesheet" href="/static/material.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Employees</h1>
+</header>
+
+<div class="navbar">
+    <a href="/auth.html">Auth</a>
+    <a href="/employees.html" class="active">Employees</a>
+    <a href="/campaigns.html">Campaigns</a>
+    <a href="/dashboard.html">Dashboard</a>
+
+    <span class="nav-right" id="auth-email"></span>
+    <button class="btn-small" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Add Employee</h2>
+
+        <label>Full name</label>
+        <input id="emp-name" type="text">
+
+        <label>Email</label>
+        <input id="emp-email" type="email">
+
+        <label>Department</label>
+        <input id="emp-dept" type="text">
+
+        <button onclick="createEmployee()">Create</button>
+        <small id="emp-status"></small>
+    </div>
+
+    <div class="card">
+        <h2>Employee List</h2>
+        <button class="btn-secondary" onclick="loadEmployees()">Reload</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th><th>Name</th><th>Email</th><th>Department</th><th>Score</th>
+            </tr>
+            </thead>
+            <tbody id="emp-table"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="/static/utils.js"></script>
+<script src="/static/employees.js"></script>
+
+</body>
+</html>
