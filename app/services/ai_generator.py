@@ -5,9 +5,11 @@ from app.config import get_settings
 settings = get_settings()
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
+
 def extract_clean_text(response):
     """
-    Extracts FULL text from Gemini and removes any ```json fences.
+    Extracts Gemini text cleanly and removes ALL backticks, fences,
+    invisible junk, and markdown.
     """
     try:
         parts = response.candidates[0].content.parts
@@ -15,9 +17,9 @@ def extract_clean_text(response):
     except:
         text = response.text or ""
 
-    # Remove code fences
-    text = text.replace("```json", "").replace("```", "").strip()
-    text = text.replace("`", "").strip()  # remove stray backticks
+    for fence in ["```json", "```JSON", "```", "`"]:
+        text = text.replace(fence, "")
+    text = text.strip()
     return text
 
 
@@ -27,45 +29,44 @@ def generate_email_for_employee(employee_name: str,
                                 difficulty: str = "medium"):
 
     prompt = f"""
-You generate corporate-style phishing simulation emails.
+You generate CORPORATE phishing-simulation emails.
 
-STRICT RULES:
-- Personalize with employee name: {employee_name}
-- Medium length (5–7 paragraphs)
-- Realistic corporate tone
-- HTML only (<p>, <a>, <strong>, <br>)
-- MUST include exactly 1 phishing link inside the body
-- DO NOT output ```json or ``` anywhere
-- DO NOT output markdown
-- DO NOT output placeholders like [Employee Name]
-- Greeting MUST be only once: "Dear {employee_name},"
-- FINAL OUTPUT MUST BE ONLY valid JSON:
+YOU MUST OUTPUT ONLY VALID JSON.  
+NOTHING BEFORE IT.  
+NOTHING AFTER IT.  
+NO markdown, NO backticks.
 
+JSON FORMAT (MANDATORY):
 {{
-  "subject": "A realistic subject",
-  "body_html": "<p>...</p>"
+  "subject": "string",
+  "body_html": "<p>HTML only...</p>"
 }}
 
-Email structure required:
-1. <p>Dear {employee_name},</p>
-2. Paragraph describing suspicious activity
-3. Paragraph creating urgency
-4. Instructions + verification
-5. One phishing link
-6. Security notice
-7. Closing paragraph
+RULES:
+- Personalize fully with: {employee_name}
+- Medium length: 5–7 paragraphs
+- 1 greeting ONLY: <p>Dear {employee_name},</p>
+- MUST include EXACTLY ONE phishing link in HTML:
+  <a href="https://verify-secure-login.com/{employee_name}">Verify Your Account</a>
+- HTML ONLY (p, br, strong, a)
+- NO \\n, NO markdown
+- NO placeholders
+- Do NOT write ```json
+- Do NOT explain yourself
+- Do NOT add extra text outside JSON
+
+Now produce the JSON only.
+Subject must be realistic for the topic: {topic}.
 """
 
     model = genai.GenerativeModel("models/gemini-2.0-flash")
     response = model.generate_content(prompt)
-
     raw = extract_clean_text(response)
 
-    # Ensure JSON is clean
     try:
         data = json.loads(raw)
-    except:
-        # Fallback, but KEEP only one greeting
+    except Exception:
+        # Safe fallback — but NEVER duplicate greeting
         data = {
             "subject": f"{topic} Alert",
             "body_html": (
@@ -74,10 +75,13 @@ Email structure required:
             )
         }
 
-    # Final safety: ensure greeting appears ONLY once
+    # Ensure personalization
     body = data["body_html"]
     body = body.replace("Dear Employee", f"Dear {employee_name}")
     body = body.replace(f"Dear {employee_name},Dear {employee_name}", f"Dear {employee_name}")
+
+    # Final safety cleanup
+    body = body.replace("\\n", "<br>").replace("\n", "<br>")
 
     data["body_html"] = body
     return data
