@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees – PhishGuard</title>
+    <link rel="stylesheet" href="/static/css/material.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>Employees</h1>
+</header>
+
+<nav class="navbar">
+    <a id="nav-auth" href="/auth.html">Auth</a>
+    <a id="nav-employees" href="/employees.html" class="active">Employees</a>
+    <a id="nav-campaigns" href="/campaigns.html">Campaigns</a>
+    <a id="nav-dashboard" href="/dashboard.html">Dashboard</a>
+
+    <div class="navbar-right">
+        <span class="pill" id="auth-email">Not logged in</span>
+        <button class="btn-small" id="btn-logout">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Add Employee</h2>
+
+        <label for="emp-name">Full name</label>
+        <input id="emp-name" type="text">
+
+        <label for="emp-email">Email</label>
+        <input id="emp-email" type="email">
+
+        <label for="emp-dept">Department (optional)</label>
+        <input id="emp-dept" type="text">
+
+        <button id="btn-create-employee">Create employee</button>
+        <small id="emp-status"></small>
+    </div>
+
+    <div class="card">
+        <h2>Employees</h2>
+        <button class="btn-secondary" id="btn-reload-employees">Reload</button>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Score</th>
+            </tr>
+            </thead>
+            <tbody id="emp-table"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="/static/js/utils.js" defer></script>
+<script src="/static/js/employees.js" defer></script>
+
+</body>
+</html>

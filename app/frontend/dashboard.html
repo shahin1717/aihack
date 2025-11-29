@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – PhishGuard</title>
+    <link rel="stylesheet" href="/static/css/material.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>Campaign analytics</h1>
+</header>
+
+<nav class="navbar">
+    <a id="nav-auth" href="/auth.html">Auth</a>
+    <a id="nav-employees" href="/employees.html">Employees</a>
+    <a id="nav-campaigns" href="/campaigns.html">Campaigns</a>
+    <a id="nav-dashboard" href="/dashboard.html" class="active">Dashboard</a>
+
+    <div class="navbar-right">
+        <span class="pill" id="auth-email">Not logged in</span>
+        <button class="btn-small" id="btn-logout">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Campaign stats</h2>
+
+        <label for="dash-camp-id">Campaign ID</label>
+        <input id="dash-camp-id" type="number">
+
+        <button id="btn-load-stats">Load stats</button>
+
+        <pre id="dash-json" class="json-box"></pre>
+    </div>
+
+</div>
+
+<script src="/static/js/utils.js" defer></script>
+<script src="/static/js/dashboard.js" defer></script>
+
+</body>
+</html>

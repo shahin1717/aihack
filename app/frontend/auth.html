@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PhishGuard – Auth</title>
+    <link rel="stylesheet" href="/static/css/material.css">
+</head>
+
+<body>
+
+<header class="topbar">
+    <h1>PhishGuard Admin</h1>
+</header>
+
+<nav class="navbar">
+    <a id="nav-auth" href="/auth.html" class="active">Auth</a>
+    <a id="nav-employees" href="/employees.html">Employees</a>
+    <a id="nav-campaigns" href="/campaigns.html">Campaigns</a>
+    <a id="nav-dashboard" href="/dashboard.html">Dashboard</a>
+
+    <div class="navbar-right">
+        <span class="pill" id="auth-email">Not logged in</span>
+        <button class="btn-small" id="btn-logout">Logout</button>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Create Admin Account</h2>
+
+        <label for="reg-email">Email</label>
+        <input id="reg-email" type="email">
+
+        <label for="reg-password">Password</label>
+        <input id="reg-password" type="password">
+
+        <button id="btn-register">Register &amp; Login</button>
+        <small id="reg-status"></small>
+    </div>
+
+    <div class="card">
+        <h2>Login</h2>
+
+        <label for="login-email">Email</label>
+        <input id="login-email" type="email">
+
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password">
+
+        <button id="btn-login">Login</button>
+        <small id="login-status"></small>
+    </div>
+
+</div>
+
+<script src="/static/js/utils.js" defer></script>
+<script src="/static/js/auth.js" defer></script>
+
+</body>
+</html>

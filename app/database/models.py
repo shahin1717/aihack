@@ -75,10 +75,14 @@ class CampaignRecipient(Base):
     __tablename__ = "campaign_recipients"
 
     id = Column(Integer, primary_key=True, index=True)
+    campaign_id = Column(Integer, ForeignKey("campaigns.id"))
+    employee_id = Column(Integer, ForeignKey("employees.id"))
 
-    campaign_id = Column(Integer, ForeignKey("campaigns.id"), nullable=False)
-    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=False)
+    # Personalized AI-generated content per employee
+    personalized_subject = Column(String(255), nullable=True)
+    personalized_body_html = Column(Text, nullable=True)
 
+    # Tracking flags
     email_sent = Column(Boolean, default=False)
     email_opened = Column(Boolean, default=False)
     link_clicked = Column(Boolean, default=False)
@@ -87,11 +91,15 @@ class CampaignRecipient(Base):
     opened_at = Column(DateTime, nullable=True)
     clicked_at = Column(DateTime, nullable=True)
 
-    campaign = relationship("Campaign", back_populates="recipients")
-    employee = relationship("Employee", back_populates="received_campaigns")
-
-    tracking_events = relationship("TrackingEvent", back_populates="recipient")
-
+    # Relationships
+    employee = relationship("Employee")
+    campaign = relationship("Campaign")
+    
+    tracking_events = relationship(
+    "TrackingEvent",
+    back_populates="recipient",
+    cascade="all, delete-orphan"
+)
 
 # -----------------------------------
 # TRACKING EVENTS (pixel opens / click logs)
@@ -106,3 +114,4 @@ class TrackingEvent(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     recipient = relationship("CampaignRecipient", back_populates="tracking_events")
+    

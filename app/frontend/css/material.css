@@ -1,0 +1,244 @@
+/* ====== GLOBAL MATERIAL-STYLE THEME ====== */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  background: #020617; /* slate-950 */
+  color: #e5e7eb;      /* slate-200 */
+}
+
+/* Top bar */
+
+.topbar {
+  background: #0f172a; /* slate-900 */
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.8);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Navigation */
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  background: #020617;
+  border-bottom: 1px solid #1f2937;
+}
+
+.navbar a {
+  color: #9ca3af;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar a:hover {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+.navbar a.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.navbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Pills, small buttons */
+
+.pill {
+  background: #111827;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: #e5e7eb;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: #4b5563;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn-small:hover {
+  background: #374151;
+}
+
+/* Layout container */
+
+.container {
+  max-width: 1100px;
+  margin: 20px auto 32px auto;
+  padding: 0 16px;
+}
+
+/* Cards */
+
+.card {
+  background: #020617;
+  border-radius: 14px;
+  padding: 20px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.9);
+  border: 1px solid #111827;
+}
+
+.card h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* Form elements */
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 9px 11px;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.18s, box-shadow 0.18s, background 0.18s;
+}
+
+input:focus,
+textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+  background: #020617;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Buttons */
+
+button {
+  margin-top: 12px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button.btn-secondary {
+  background: #4b5563;
+}
+
+button.btn-secondary:hover {
+  background: #374151;
+}
+
+/* Tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #111827;
+}
+
+th {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* JSON output */
+
+.json-box {
+  margin-top: 12px;
+  background: #020617;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #111827;
+  max-height: 320px;
+  overflow: auto;
+  font-size: 13px;
+  color: #cbd5f5;
+}
+
+/* Small text */
+
+small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .navbar {
+      flex-wrap: wrap;
+  }
+
+  .navbar-right {
+      width: 100%;
+      justify-content: flex-end;
+  }
+
+  .container {
+      padding: 0 12px;
+  }
+}

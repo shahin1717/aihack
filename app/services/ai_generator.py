@@ -1,47 +1,83 @@
 import google.generativeai as genai
+import json
 from app.config import get_settings
 
 settings = get_settings()
-
-# Configure Gemini
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
+def extract_clean_text(response):
+    """
+    Extracts FULL text from Gemini and removes any ```json fences.
+    """
+    try:
+        parts = response.candidates[0].content.parts
+        text = "".join([p.text for p in parts])
+    except:
+        text = response.text or ""
 
-def generate_email(topic: str, tone: str = "phishing", difficulty: str = "medium"):
-    """
-    Generate phishing-style email using Google Gemini (free tier).
-    """
+    # Remove code fences
+    text = text.replace("```json", "").replace("```", "").strip()
+    text = text.replace("`", "").strip()  # remove stray backticks
+    return text
+
+
+def generate_email_for_employee(employee_name: str,
+                                topic: str,
+                                tone: str = "urgent",
+                                difficulty: str = "medium"):
 
     prompt = f"""
-    Generate a phishing simulation email for cybersecurity training.
+You generate corporate-style phishing simulation emails.
 
-    Requirements:
-    - Topic: {topic}
-    - Tone: {tone}
-    - Difficulty: {difficulty}
-    - Produce believable, corporate-style phishing content.
-    - Respond ONLY in JSON with:
-      {{
-        "subject": "...",
-        "body_html": "..."
-      }}
-    - Make body_html real HTML.
-    - Do NOT include malicious code.
-    - Keep tone urgent and realistic.
-    """
+STRICT RULES:
+- Personalize with employee name: {employee_name}
+- Medium length (5–7 paragraphs)
+- Realistic corporate tone
+- HTML only (<p>, <a>, <strong>, <br>)
+- MUST include exactly 1 phishing link inside the body
+- DO NOT output ```json or ``` anywhere
+- DO NOT output markdown
+- DO NOT output placeholders like [Employee Name]
+- Greeting MUST be only once: "Dear {employee_name},"
+- FINAL OUTPUT MUST BE ONLY valid JSON:
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+{{
+  "subject": "A realistic subject",
+  "body_html": "<p>...</p>"
+}}
 
+Email structure required:
+1. <p>Dear {employee_name},</p>
+2. Paragraph describing suspicious activity
+3. Paragraph creating urgency
+4. Instructions + verification
+5. One phishing link
+6. Security notice
+7. Closing paragraph
+"""
+
+    model = genai.GenerativeModel("models/gemini-2.0-flash")
     response = model.generate_content(prompt)
 
-    import json
+    raw = extract_clean_text(response)
+
+    # Ensure JSON is clean
     try:
-        data = json.loads(response.text)
+        data = json.loads(raw)
     except:
-        # fallback
+        # Fallback, but KEEP only one greeting
         data = {
-            "subject": f"{topic} Notification",
-            "body_html": f"<p>{response.text}</p>"
+            "subject": f"{topic} Alert",
+            "body_html": (
+                f"<p>Dear {employee_name},</p>"
+                f"<p>{raw}</p>"
+            )
         }
 
+    # Final safety: ensure greeting appears ONLY once
+    body = data["body_html"]
+    body = body.replace("Dear Employee", f"Dear {employee_name}")
+    body = body.replace(f"Dear {employee_name},Dear {employee_name}", f"Dear {employee_name}")
+
+    data["body_html"] = body
     return data
