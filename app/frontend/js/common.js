@@ -1,7 +1,8 @@
-// ---------------- CONFIG ----------------
-const API_BASE = "http://localhost:8000";
+// ========== GLOBAL CONFIG ==========
+// NOTE: This file is deprecated. Use utils.js instead.
+// API_BASE is imported from utils.js (loaded before this script)
 
-// ---------------- TOKEN MANAGEMENT ----------------
+// ========== TOKEN ==========
 let accessToken = localStorage.getItem("pg_token") || null;
 let authEmail = localStorage.getItem("pg_email") || null;
 
@@ -12,37 +13,39 @@ function authHeaders() {
   };
 }
 
-// ---------------- UI UPDATE ----------------
+// ========== AUTH UI ==========
 function updateAuthUI() {
   const emailSpan = document.getElementById("auth-email-pill");
   const logoutBtn = document.getElementById("logout-btn");
 
-  if (!emailSpan) return; // some pages may not have this
+  if (!emailSpan) return; // Page does not have auth UI
 
   if (accessToken) {
-    emailSpan.textContent = authEmail;
-    logoutBtn.style.display = "inline-block";
+    emailSpan.textContent = authEmail || "Admin";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
   } else {
     emailSpan.textContent = "Not logged in";
-    logoutBtn.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "none";
   }
 }
 
-// ---------------- LOGOUT ----------------
+// ========== LOGOUT ==========
 function logout() {
   accessToken = null;
   authEmail = null;
+
   localStorage.removeItem("pg_token");
   localStorage.removeItem("pg_email");
+
   window.location.href = "auth.html";
 }
 
-// ---------------- PROTECTED PAGE CHECK ----------------
+// ========== PROTECTED PAGE GUARD ==========
 function requireAuth() {
   if (!accessToken) {
     window.location.href = "auth.html";
   }
 }
 
-// Run on every page
+// Run on all pages automatically
 updateAuthUI();

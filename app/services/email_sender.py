@@ -1,38 +1,36 @@
 import smtplib
 from datetime import datetime
-from email.mime.multipart import MIMEMultipart"
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from sqlalchemy.orm import Session
-
 from app.config import get_settings
 from app.database.models import Campaign, CampaignRecipient, Employee
 
 settings = get_settings()
-
 
 def _build_email_html(
     campaign: Campaign,
     recipient_id: int,
     base_url: str,
     redirect_url: str,
+    body_html: str | None = None,
 ) -> str:
     """
     Build HTML email body with:
-    - original campaign HTML body
-    - tracking pixel (open tracking)
-    - tracked CTA button (click tracking)
+    - original or personalized HTML body
+    - tracking pixel
+    - tracked CTA button
     """
-    body = campaign.body_html
+    # Use personalized HTML if provided, otherwise the campaign default
+    body = body_html or campaign.body_html
 
-    # Open tracking pixel
     pixel_url = f"{base_url}/track/open/{recipient_id}"
     pixel_tag = (
         f'<img src="{pixel_url}" width="1" height="1" '
         f'style="display:none;" alt="." />'
     )
 
-    # Click tracking link
     click_url = (
         f"{base_url}/track/click/{recipient_id}"
         f"?redirect={redirect_url}"
@@ -45,22 +43,10 @@ def _build_email_html(
 
     return body + "\n" + cta + "\n" + pixel_tag
 
-
 def send_campaign_emails(
-    db: Session,
-    campaign: Campaign,
-    base_url: str,
-    redirect_url: str = "https://www.google.com",
-) -> None:
-    """
-    Send phishing simulation emails using Gmail SMTP.
-
-    Gmail Requirements:
-    - envelope MAIL FROM must be your real Gmail
-    - message header From must also be your real Gmail
-    - cannot spoof other sender addresses
-    """
-
+    db: Session, campaign: Campaign, base_url: str,
+    redirect_url="https://www.google.com"
+):
     recipients = (
         db.query(CampaignRecipient)
         .filter(CampaignRecipient.campaign_id == campaign.id)
@@ -70,49 +56,42 @@ def send_campaign_emails(
     if not recipients:
         return
 
-    # Connect to Gmail SMTP once
+    gmail_from = settings.SMTP_FROM_EMAIL or settings.SMTP_USER
+
     with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
         server.starttls()
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
 
-        gmail_from = settings.SMTP_FROM_EMAIL or settings.SMTP_USER
-
         for rec in recipients:
-            employee = rec.employee
+            employee = rec.employee or db.query(Employee).filter_by(id=rec.employee_id).first()
+            if not employee:
+                continue
 
-            if employee is None:
-                employee = (
-                    db.query(Employee)
-                    .filter(Employee.id == rec.employee_id)
-                    .first()
-                )
-                if employee is None:
-                    continue
-
-            # Build email message
             msg = MIMEMultipart("alternative")
-            msg["Subject"] = campaign.subject
 
-            # IMPORTANT: Gmail DOES NOT ALLOW SPOOFED EMAILS
+            # Personalized subject or default
+            subject = rec.personalized_subject or campaign.subject
+            msg["Subject"] = subject
             msg["From"] = f"{campaign.sender_name} <{gmail_from}>"
             msg["To"] = employee.email
 
-            # Text fallback
-            text_part = (
-                f"Hello {employee.full_name},\n\n"
-                f"Please view this email in HTML format."
-            )
-
-            # HTML body with tracking
-            html_part = _build_email_html(
+            # --- 🚀 MAKE BODY WITH TRACKING + CTA ---
+            final_html = _build_email_html(
                 campaign=campaign,
                 recipient_id=rec.id,
-                base_url=base_url.rstrip("/"),
+                base_url=base_url,
                 redirect_url=redirect_url,
+                body_html=rec.personalized_body_html  # <-- AI-generated body
+            )
+
+            # Small plaintext fallback
+            text_part = (
+                f"Hello {employee.full_name},\n"
+                f"Please view this message in HTML format."
             )
 
             msg.attach(MIMEText(text_part, "plain"))
-            msg.attach(MIMEText(html_part, "html"))
+            msg.attach(MIMEText(final_html, "html"))
 
             server.sendmail(
                 gmail_from,
@@ -120,7 +99,6 @@ def send_campaign_emails(
                 msg.as_string(),
             )
 
-            # Mark email as sent
             rec.email_sent = True
             rec.sent_at = datetime.utcnow()
 

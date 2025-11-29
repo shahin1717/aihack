@@ -1,34 +1,29 @@
-const API_BASE = "http://127.0.0.1:8000";
+// Employees page logic
 
-function getToken() {
-    return localStorage.getItem("pg_token");
-}
+document.addEventListener("DOMContentLoaded", () => {
+    pgRequireAuth();
+    pgInitLogout();
+    pgUpdateAuthBadge();
 
-function headersAuth() {
-    const token = getToken();
-    return token ? { "Authorization": "Bearer " + token } : {};
-}
+    const btnReload = document.getElementById("btn-reload-employees");
+    const btnCreate = document.getElementById("btn-create-employee");
 
-document.getElementById("btn-reload-employees").onclick = loadEmployees;
-document.getElementById("btn-create-employee").onclick = createEmployee;
+    if (btnReload) btnReload.onclick = loadEmployees;
+    if (btnCreate) btnCreate.onclick = createEmployee;
 
-// -------- LOAD EMPLOYEES ----------
+    // auto load on page open
+    loadEmployees();
+});
+
 async function loadEmployees() {
     const status = document.getElementById("emp-status");
     const tbody = document.getElementById("emp-table");
     tbody.innerHTML = "";
-
-    if (!getToken()) {
-        status.textContent = "You must login first.";
-        return;
-    }
-
     status.textContent = "Loading...";
 
     try {
         const res = await fetch(`${API_BASE}/employees/`, {
-            method: "GET",
-            headers: { ...headersAuth() }
+            headers: pgAuthHeaders()
         });
 
         const data = await res.json();
@@ -40,27 +35,26 @@ async function loadEmployees() {
         status.textContent = "";
 
         data.forEach(emp => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
                 <td>${emp.id}</td>
                 <td>${emp.full_name}</td>
                 <td>${emp.email}</td>
                 <td>${emp.department || "-"}</td>
                 <td>${emp.awareness_score}</td>
             `;
-            tbody.appendChild(row);
+            tbody.appendChild(tr);
         });
 
-    } catch {
+    } catch (err) {
         status.textContent = "Network error";
     }
 }
 
-// -------- CREATE EMPLOYEE ----------
 async function createEmployee() {
     const full_name = document.getElementById("emp-name").value;
     const email = document.getElementById("emp-email").value;
-    const department = document.getElementById("emp-dept").value;
+    const department = document.getElementById("emp-dept").value || null;
     const status = document.getElementById("emp-status");
 
     status.textContent = "Creating...";
@@ -70,7 +64,7 @@ async function createEmployee() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...headersAuth()
+                ...pgAuthHeaders()
             },
             body: JSON.stringify({ full_name, email, department })
         });
@@ -81,13 +75,10 @@ async function createEmployee() {
             return;
         }
 
-        status.textContent = "Created!";
+        status.textContent = "Employee created.";
         loadEmployees();
 
-    } catch {
+    } catch (err) {
         status.textContent = "Network error";
     }
 }
-
-// auto load on page enter
-loadEmployees();

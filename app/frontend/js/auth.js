@@ -1,82 +1,84 @@
-// -------- CONFIG ----------
-const API_BASE = "http://127.0.0.1:8000";
+// ======================
+// CONFIG
+// ======================
+// API_BASE is imported from utils.js (loaded before this script)
 
-function saveAuth(token, email) {
-    localStorage.setItem("pg_token", token);
-    localStorage.setItem("pg_email", email);
-}
+// ======================
+// BUTTON EVENT ATTACH
+// ======================
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("btn-register").addEventListener("click", registerAdmin);
+    document.getElementById("btn-login").addEventListener("click", login);
+});
 
-function clearAuth() {
-    localStorage.removeItem("pg_token");
-    localStorage.removeItem("pg_email");
-}
-
-function getToken() {
-    return localStorage.getItem("pg_token");
-}
-
-function headersAuth() {
-    const token = getToken();
-    return token ? { "Authorization": "Bearer " + token } : {};
-}
-
-// ---------- REGISTER ----------
-document.getElementById("btn-register").onclick = async () => {
+// ======================
+// REGISTER ADMIN
+// ======================
+async function registerAdmin() {
     const email = document.getElementById("reg-email").value;
     const password = document.getElementById("reg-password").value;
-    const status = document.getElementById("reg-status");
-    status.textContent = "Registering...";
+    const statusEl = document.getElementById("reg-status");
+
+    statusEl.textContent = "Registering...";
 
     try {
-        const res = await fetch(`${API_BASE}/auth/register`, {
+        const res = await fetch(`${API_BASE}/auth/register`, {     // 👈 correct endpoint
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
 
         const data = await res.json();
 
         if (!res.ok) {
-            status.textContent = data.detail || "Error";
+            statusEl.textContent = data.detail || "Error registering.";
             return;
         }
 
-        saveAuth(data.access_token, email);
-        status.textContent = "Registered. Logged in!";
-        window.location.href = "/employees.html";
+        // Save token
+        localStorage.setItem("pg_token", data.access_token);
+        localStorage.setItem("pg_email", email);
+
+        statusEl.textContent = "Registered successfully. Redirecting...";
+        setTimeout(() => window.location.href = "employees.html", 800);
 
     } catch (e) {
-        status.textContent = "Network error";
+        statusEl.textContent = "Network error";
     }
-};
+}
 
-// ---------- LOGIN ----------
-document.getElementById("btn-login").onclick = async () => {
+// ======================
+// LOGIN ADMIN
+// ======================
+async function login() {
     const email = document.getElementById("login-email").value;
     const password = document.getElementById("login-password").value;
-    const status = document.getElementById("login-status");
+    const statusEl = document.getElementById("login-status");
 
-    status.textContent = "Logging in...";
+    statusEl.textContent = "Logging in...";
 
     try {
-        const res = await fetch(`${API_BASE}/auth/login`, {
+        const res = await fetch(`${API_BASE}/auth/login`, {   // 👈 correct route
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
 
         const data = await res.json();
 
         if (!res.ok) {
-            status.textContent = data.detail || "Invalid credentials";
+            statusEl.textContent = data.detail || "Invalid credentials.";
             return;
         }
 
-        saveAuth(data.access_token, email);
-        status.textContent = "Success!";
-        window.location.href = "/employees.html";
+        // Save token
+        localStorage.setItem("pg_token", data.access_token);
+        localStorage.setItem("pg_email", email);
 
-    } catch {
-        status.textContent = "Network error";
+        statusEl.textContent = "Login successful. Redirecting...";
+        setTimeout(() => window.location.href = "employees.html", 800);
+
+    } catch (e) {
+        statusEl.textContent = "Network error";
     }
-};
+}

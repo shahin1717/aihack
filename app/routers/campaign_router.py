@@ -1,3 +1,4 @@
+# campaign_router.py
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
@@ -13,66 +14,66 @@ router = APIRouter(
 )
 
 
-# ------------------------------------------------------
-# CREATE CAMPAIGN + SEND EMAILS
-# ------------------------------------------------------
+from app.services.ai_generator import generate_email_for_employee
+
 @router.post("/", response_model=CampaignResponse)
-def create_campaign(
-    data: CampaignCreate,
-    request: Request,
-    db: Session = Depends(get_db),
-    admin=Depends(get_current_admin),
-):
-    # Create campaign entry
+def create_campaign(data: CampaignCreate,
+                    request: Request,
+                    db: Session = Depends(get_db),
+                    admin=Depends(get_current_admin)):
+
+    # Create campaign
     campaign = Campaign(
         title=data.title,
         sender_name=data.sender_name,
         sender_email=data.sender_email,
-        subject=data.subject,
-        body_html=data.body_html,
+        subject="",             # will be overwritten per employee
+        body_html="",           # will be overwritten per employee
         admin_id=admin.id,
     )
     db.add(campaign)
     db.commit()
     db.refresh(campaign)
 
-    # Validate employees exist
-    employees = (
-        db.query(Employee)
-        .filter(Employee.id.in_(data.employee_ids))
-        .all()
-    )
+    # Get employee objects
+    employees = db.query(Employee).filter(Employee.id.in_(data.employee_ids)).all()
 
     if len(employees) != len(data.employee_ids):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Some employees do not exist",
+        raise HTTPException(400, "Some employees do not exist")
+
+    # Personalized emails
+    for emp in employees:
+
+        ai = generate_email_for_employee(
+            employee_name=emp.full_name,
+            topic=data.title,
+            tone="urgent",
+            difficulty="medium"
         )
 
-    # Create CampaignRecipient entries
-    recipients = []
-    for emp in employees:
-        link = CampaignRecipient(
-            campaign_id=campaign.id,
-            employee_id=emp.id,
-        )
-        db.add(link)
-        recipients.append(link)
+        # Create recipient record
+        rec = CampaignRecipient(
+    campaign_id=campaign.id,
+    employee_id=emp.id,
+    personalized_subject=None,
+    personalized_body_html=None
+)
+
+# Add AI-personalized content
+        rec.personalized_subject = ai["subject"]
+        rec.personalized_body_html = ai["body_html"]
+        db.add(rec)
 
     db.commit()
 
-    # Reload campaign with recipients
-    db.refresh(campaign)
-
-    # Base URL for tracking links, e.g. "http://localhost:8000"
+    # Send personalized emails
     base_url = str(request.base_url).rstrip("/")
 
-    # Send emails (simple redirect target for hackathon)
     send_campaign_emails(
         db=db,
         campaign=campaign,
         base_url=base_url,
-        redirect_url="https://www.google.com",
+        redirect_url="https://www.google.com"
     )
 
     return campaign

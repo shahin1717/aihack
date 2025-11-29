@@ -1,45 +1,47 @@
-requireAuth();
+// Dashboard page logic
+
+document.addEventListener("DOMContentLoaded", () => {
+    pgRequireAuth();
+    pgInitLogout();
+    pgUpdateAuthBadge();
+
+    const btnLoad = document.getElementById("btn-load-stats");
+    if (btnLoad) btnLoad.onclick = loadStats;
+
+    // Autofill from ?camp=ID or ?campaign_id=ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const campId = urlParams.get("camp") || urlParams.get("campaign_id");
+    if (campId) {
+        const input = document.getElementById("dash-camp-id");
+        if (input) input.value = campId;
+    }
+});
 
 async function loadStats() {
-  const idField = document.getElementById("dash-camp-id");
-  const id = idField.value;
-  const out = document.getElementById("dash-json");
-  const statusEl = document.getElementById("dash-status");
+    const id = document.getElementById("dash-camp-id").value;
+    const out = document.getElementById("dash-json");
 
-  if (!id) {
-    statusEl.textContent = "Enter ID.";
-    return;
-  }
-
-  statusEl.textContent = "Loading...";
-
-  try {
-    const res = await fetch(`${API_BASE}/dashboard/campaign/${id}`, {
-      headers: authHeaders()
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      statusEl.textContent = data.detail || "Error";
-      return;
+    if (!id) {
+        out.textContent = "Enter a campaign ID.";
+        return;
     }
 
-    statusEl.textContent = "";
-    out.textContent = JSON.stringify(data, null, 2);
+    out.textContent = "Loading...";
 
-    // Summary boxes in future (optional)
-  } catch {
-    statusEl.textContent = "Network error";
-  }
-}
+    try {
+        const res = await fetch(`${API_BASE}/dashboard/campaign/${id}`, {
+            headers: pgAuthHeaders()
+        });
 
-document.getElementById("dash-load-btn").onclick = loadStats;
+        const data = await res.json();
+        if (!res.ok) {
+            out.textContent = data.detail || "Error";
+            return;
+        }
 
+        out.textContent = JSON.stringify(data, null, 2);
 
-// auto-fill from ?campaign=ID
-const params = new URLSearchParams(window.location.search);
-if (params.has("campaign")) {
-  document.getElementById("dash-camp-id").value = params.get("campaign");
-  loadStats();
+    } catch (err) {
+        out.textContent = "Network error";
+    }
 }
