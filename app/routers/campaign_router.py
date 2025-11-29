@@ -1,71 +1,119 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from typing import List
-from datetime import datetime
+
 from app.database.connection import get_db
 from app.database.models import Campaign, Employee, CampaignRecipient
-from app.schemas.campaign_schemas import CampaignCreate, CampaignOut
-from app.core.auth import get_current_admin
-from app.services.campaign_service import create_campaign_recipients
+from app.schemas.campaign_schemas import CampaignCreate, CampaignResponse
+from app.core.security import get_current_admin
 from app.services.email_sender import send_campaign_emails
 
-router = APIRouter(prefix="/campaign", tags=["campaign"])
+router = APIRouter(
+    prefix="/campaigns",
+    tags=["Campaigns"],
+)
 
 
-@router.post("/create", response_model=CampaignOut)
+# ------------------------------------------------------
+# CREATE CAMPAIGN + SEND EMAILS
+# ------------------------------------------------------
+@router.post("/", response_model=CampaignResponse)
 def create_campaign(
-    campaign: CampaignCreate,
+    data: CampaignCreate,
+    request: Request,
     db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin)
+    admin=Depends(get_current_admin),
 ):
-    db_campaign = Campaign(
-        name=campaign.name,
-        subject=campaign.subject,
-        body_html=campaign.body_html
+    # Create campaign entry
+    campaign = Campaign(
+        title=data.title,
+        sender_name=data.sender_name,
+        sender_email=data.sender_email,
+        subject=data.subject,
+        body_html=data.body_html,
+        admin_id=admin.id,
     )
-    db.add(db_campaign)
+    db.add(campaign)
     db.commit()
-    db.refresh(db_campaign)
-    
-    if campaign.employee_ids:
-        create_campaign_recipients(db, db_campaign.id, campaign.employee_ids)
-    
-    return db_campaign
+    db.refresh(campaign)
 
+    # Validate employees exist
+    employees = (
+        db.query(Employee)
+        .filter(Employee.id.in_(data.employee_ids))
+        .all()
+    )
 
-@router.post("/{campaign_id}/send")
-def send_campaign(
-    campaign_id: int,
-    db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin)
-):
-    campaign = db.query(Campaign).filter(Campaign.id == campaign_id).first()
-    if not campaign:
-        raise HTTPException(status_code=404, detail="Campaign not found")
-    
-    recipients = db.query(CampaignRecipient).filter(
-        CampaignRecipient.campaign_id == campaign_id
-    ).all()
-    
-    if not recipients:
-        raise HTTPException(status_code=400, detail="No recipients found for this campaign")
-    
-    employee_ids = [r.employee_id for r in recipients]
-    employees = db.query(Employee).filter(Employee.id.in_(employee_ids)).all()
-    
-    send_campaign_emails(campaign, employees)
-    
-    campaign.sent_at = datetime.utcnow()
+    if len(employees) != len(data.employee_ids):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Some employees do not exist",
+        )
+
+    # Create CampaignRecipient entries
+    recipients = []
+    for emp in employees:
+        link = CampaignRecipient(
+            campaign_id=campaign.id,
+            employee_id=emp.id,
+        )
+        db.add(link)
+        recipients.append(link)
+
     db.commit()
-    
-    return {"message": f"Campaign sent to {len(employees)} employees"}
+
+    # Reload campaign with recipients
+    db.refresh(campaign)
+
+    # Base URL for tracking links, e.g. "http://localhost:8000"
+    base_url = str(request.base_url).rstrip("/")
+
+    # Send emails (simple redirect target for hackathon)
+    send_campaign_emails(
+        db=db,
+        campaign=campaign,
+        base_url=base_url,
+        redirect_url="https://www.google.com",
+    )
+
+    return campaign
 
 
-@router.get("/", response_model=List[CampaignOut])
+# ------------------------------------------------------
+# LIST CAMPAIGNS
+# ------------------------------------------------------
+@router.get("/", response_model=list[CampaignResponse])
 def list_campaigns(
     db: Session = Depends(get_db),
-    current_admin = Depends(get_current_admin)
+    admin=Depends(get_current_admin),
 ):
-    campaigns = db.query(Campaign).all()
+    campaigns = (
+        db.query(Campaign)
+        .filter(Campaign.admin_id == admin.id)
+        .order_by(Campaign.id.desc())
+        .all()
+    )
     return campaigns
 
+
+# ------------------------------------------------------
+# GET ONE CAMPAIGN
+# ------------------------------------------------------
+@router.get("/{campaign_id}", response_model=CampaignResponse)
+def get_campaign(
+    campaign_id: int,
+    db: Session = Depends(get_db),
+    admin=Depends(get_current_admin),
+):
+    campaign = (
+        db.query(Campaign)
+        .filter(Campaign.id == campaign_id, Campaign.admin_id == admin.id)
+        .first()
+    )
+
+    if not campaign:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Campaign not found",
+        )
+
+    return campaign

@@ -1,15 +1,37 @@
-from fastapi import APIRouter, Depends
-from app.schemas.ai_schemas import AIEmailRequest, AIEmailResponse
-from app.services.ai_generator import generate_phishing_email
-from app.core.auth import get_current_admin
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/ai", tags=["ai"])
+from app.schemas.ai_schemas import AIGenerateRequest, AIGenerateResponse
+from app.core.security import get_current_admin
+from app.services.ai_generator import generate_email
+
+router = APIRouter(
+    prefix="/ai",
+    tags=["AI Generator"]
+)
 
 
-@router.post("/generate-email", response_model=AIEmailResponse)
-def generate_email(
-    request: AIEmailRequest,
-    current_admin = Depends(get_current_admin)
+# ------------------------------------------------------
+# GENERATE PHISHING EMAIL CONTENT USING AI
+# ------------------------------------------------------
+@router.post("/generate", response_model=AIGenerateResponse)
+def generate_phishing_email(
+    data: AIGenerateRequest,
+    admin=Depends(get_current_admin)
 ):
-    return generate_phishing_email(request)
+    """
+    Generates AI phishing email content.
+    """
+    try:
+        result = generate_email(
+            topic=data.topic,
+            tone=data.tone,
+            difficulty=data.difficulty
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
+    return AIGenerateResponse(
+        subject=result.get("subject"),
+        body_html=result.get("body_html")
+    )

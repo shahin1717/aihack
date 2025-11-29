@@ -1,34 +1,71 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-from app.database.connection import get_db
-from app.database.models import AdminUser
-from app.core.security import verify_token
+from datetime import datetime, timedelta
+from typing import Optional
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+from app.config import get_settings
+
+settings = get_settings()
+
+# Password hashing context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_current_admin(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-) -> AdminUser:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
+# ---------------------------------
+# PASSWORD HASHING
+# ---------------------------------
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    Check if plain password matches hashed password.
+    """
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    """
+    Hash a password using bcrypt.
+    """
+    return pwd_context.hash(password)
+
+
+# ---------------------------------
+# CREATE JWT TOKEN
+# ---------------------------------
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """
+    Create a JWT access token.
+    """
+    to_encode = data.copy()
+
+    expire = datetime.utcnow() + (
+        expires_delta
+        if expires_delta
+        else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
-    
-    payload = verify_token(token)
-    if payload is None:
-        raise credentials_exception
-    
-    email: str = payload.get("sub")
-    if email is None:
-        raise credentials_exception
-    
-    admin = db.query(AdminUser).filter(AdminUser.email == email).first()
-    if admin is None:
-        raise credentials_exception
-    
-    return admin
 
+    to_encode.update({"exp": expire})
+
+    return jwt.encode(
+        to_encode,
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM,
+    )
+
+
+# ---------------------------------
+# VERIFY / DECODE JWT TOKEN
+# ---------------------------------
+def verify_token(token: str) -> Optional[dict]:
+    """
+    Decode token and return payload if valid.
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+        return payload
+    except JWTError:
+        return None

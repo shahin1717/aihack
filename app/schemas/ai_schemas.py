@@ -1,13 +1,12 @@
 from pydantic import BaseModel
 
 
-class AIEmailRequest(BaseModel):
-    scenario: str
-    tone: str
-    difficulty: str
+class AIGenerateRequest(BaseModel):
+    topic: str
+    tone: str = "phishing"
+    difficulty: str = "medium"
 
 
-class AIEmailResponse(BaseModel):
+class AIGenerateResponse(BaseModel):
     subject: str
     body_html: str
-

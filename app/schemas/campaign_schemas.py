@@ -1,23 +1,28 @@
-from pydantic import BaseModel
-from datetime import datetime
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr
+from typing import List
 
 
+# Create Campaign
 class CampaignCreate(BaseModel):
-    name: str
+    title: str
+
+    sender_name: str
+    sender_email: EmailStr
+
     subject: str
     body_html: str
-    employee_ids: Optional[List[int]] = None
+
+    employee_ids: List[int]  # which employees to target
 
 
-class CampaignOut(BaseModel):
+# Response
+class CampaignResponse(BaseModel):
     id: int
-    name: str
+    title: str
+    sender_name: str
+    sender_email: EmailStr
     subject: str
     body_html: str
-    created_at: datetime
-    sent_at: Optional[datetime]
-    
+
     class Config:
         from_attributes = True
-
