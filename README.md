@@ -1,68 +1,78 @@
-🛡️ ZeroPhish — AI-Powered Phishing Simulation & Security Awareness Platform
+ZeroPhish
 
-ZeroPhish is a modern cybersecurity platform designed to help organizations test, train, and protect employees against phishing attacks.
-It generates AI-crafted phishing emails, tracks opens & clicks, and provides real-time security insights — all through a simple, effective dashboard.
+AI-Powered Phishing Simulation & Employee Security Awareness Platform
 
-🔗 Pitch Deck:
+📌 Live Pitch Deck:
 https://www.canva.com/design/DAG6EMjJKX4/utMfN2hMYPh47URZBycwAQ/view?utm_content=DAG6EMjJKX4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hfcfcb6cc85
 
+🚀 Overview
+
+ZeroPhish is an AI-driven platform that helps companies test, measure, and improve employee resistance to phishing attacks.
+
+The platform automates everything:
+✓ AI-generated email bodies
+✓ AI-generated subjects
+✓ Phishing campaign scheduling
+✓ Click & open tracking
+✓ Admin dashboard
+✓ SMTP email delivery
+✓ Logging, reporting & analytics
+
+ZeroPhish strengthens cybersecurity awareness while saving companies time, money, and risk.
+
 ✨ Features
-🤖 AI-Generated Phishing Emails
+AI-Powered Campaign Engine
 
-ZeroPhish uses AI to craft realistic, scenario-based phishing templates — personalized per employee.
+AI-generated phishing email text
 
-📊 Real-Time Tracking
+AI-generated subjects
 
-Open-tracking pixel
-
-Click-tracking redirect
-
-Live analytics dashboard
-
-Campaign performance scoring
-
-Employee vulnerability index
-
-🧑‍💼 Employee & Department Management
-
-Admin panel includes:
-
-Departments
-
-Employees
-
-Recipient lists
-
-Personalized email bodies (AI optional)
-
-🎯 Phishing Campaign Simulator
-
-Customizable HTML email templates
-
-AI body + subject generation
-
-Scheduling
+Personalized email bodies per employee
 
 Multi-recipient dispatch
 
-Automated logging
+Schedule campaigns in advance
 
-📩 SMTP Integration
+Automatic logging & status tracking
 
-Send from real corporate email or test SMTP:
+Tracking System
+
+Pixel-based open tracking
+
+Link-based click tracking
+
+Dashboard with analytics
+
+Historical reports
+
+SMTP Integration
+
+Send campaigns using:
 
 Gmail
 
 Workplace
 
-Custom SMTP servers
+Corporate SMTP servers
+
+Testing SMTP servers
+
+Admin Management
+
+Employee database
+
+Departments
+
+Email logs
+
+Campaign performance
 
 🧱 Tech Stack
 Backend
 
 FastAPI
 
-Python
+Python 3
 
 SQLAlchemy ORM
 
@@ -70,120 +80,125 @@ MySQL / PostgreSQL
 
 JWT Authentication
 
-SMTP (email sending)
+SMTP email delivery
 
-Tracking endpoints (/track/open, /track/click)
+Tracking endpoints:
+
+/track/open/{recipient_id}
+
+/track/click/{recipient_id}?redirect=URL
 
 Frontend
 
-HTML/CSS/JS
+HTML
 
-Responsive admin interface
+CSS
 
-Live monitoring components
+JavaScript
+
+Responsive admin dashboard
+
+📦 Project Structure
+ZeroPhish/
+│
+├── app/
+│   ├── routers/
+│   │   ├── auth_router.py
+│   │   ├── employee_router.py
+│   │   ├── campaign_router.py
+│   │   ├── department_router.py
+│   │   ├── track_router.py
+│   │   └── dashboard_router.py
+│   ├── database/
+│   │   ├── connection.py
+│   │   └── models.py
+│   ├── services/
+│   │   ├── email_sender.py
+│   │   ├── ai_generator.py
+│   │   └── utils.py
+│   ├── config.py
+│   └── main.py
+│
+├── frontend/
+│   ├── employees.html
+│   ├── campaigns.html
+│   ├── auth.html
+│   ├── dashboard.html
+│   ├── css/
+│   └── js/
+│
+└── run.py
 
 ⚙️ Installation
-1️⃣ Clone Repo
-git clone https://github.com/yourname/zerophish.git
-cd zerophish
+1. Clone the repo
+git clone https://github.com/yourusername/ZeroPhish.git
+cd ZeroPhish
 
-2️⃣ Create Virtual Environment
+2. Create virtual environment
 python -m venv .venv
-source .venv/bin/activate        # macOS/Linux
-.venv\Scripts\activate           # Windows
+source .venv/bin/activate   # Linux/macOS
+.\.venv\Scripts\activate    # Windows
 
-3️⃣ Install Dependencies
+3. Install dependencies
 pip install -r requirements.txt
 
-4️⃣ Configure .env
-DATABASE_URL=mysql+pymysql://user:password@localhost/zerophish
-JWT_SECRET=your_secret_key
+4. Configure Environment
+
+Create .env:
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASSWORD=your_password
-SMTP_FROM_EMAIL=your_email@gmail.com
+SMTP_USER=your@gmail.com
+SMTP_PASSWORD=yourpass
+SMTP_FROM_EMAIL=your@gmail.com
 
-BASE_URL=https://your-deployed-domain.com
+DATABASE_URL=mysql+pymysql://root:pass@localhost/zerophish
+JWT_SECRET=supersecret
 
-▶️ Run the App
-Backend
+5. Run
 python run.py
 
-UI
+🌐 Deployment
+Render / Railway / AlwaysData
 
-Open:
+Expose port 8000
 
-http://localhost:8000
+Use python run.py
 
-🔍 Email Tracking Mechanics
-1. Open Tracking (Pixel)
+Make sure DB is accessible
 
-Injected code:
+Add environment variables
 
-<img src="BASE_URL/track/open/{recipient_id}" width="1" height="1" style="display:none;">
+Configure SMTP (App Password for Gmail)
 
+🛡 Security Notes
 
-When the email is viewed → server logs the open.
+Never use personal Gmail passwords
 
-2. Click Tracking
-BASE_URL/track/click/{recipient_id}?redirect=REAL_URL
+Use App Passwords or dedicated SMTP
 
+Always run behind HTTPS in production
 
-Logged → then user is redirected to the original link.
+Limit who can access the admin dashboard
 
-💰 Business Model (Hackathon Version)
-Tier	Price	Employees
-Starter	30 AZN / month	Up to 25
-Pro	60 AZN / month	Up to 100
-Business	119 AZN / month	100+
-🧭 Roadmap — Product Milestones
-M1 — MVP Completed (Today)
+🧭 Roadmap
+M1 — MVP Completed ✔
 
-✔️ Tracking system
-✔️ AI phishing generator
-✔️ Campaign engine
-✔️ Admin dashboard
+Backend, frontend, AI generator, tracking, SMTP sending.
 
-M2 — First Pilot Companies (1–3 SMEs)
+M2 — Pilot Users
 
-Security evaluation
-
-Collect training + real data
-
-Improve email templates
+Deploy to 1–2 companies and gather data.
 
 M3 — Integrations
 
-Office365
-
-Gmail Workspace
-
-Admin roles
-
-PDF reporting
+Slack alerts, export reports, auto-training.
 
 M4 — Scale
 
-40–80 paying customers
-
-API expansion
-
-Multi-workspace support
-
-Automated awareness training system
-
-🎯 Why ZeroPhish?
-
-90% of cyber attacks begin with phishing
-
-SMEs lack cybersecurity training
-
-ZeroPhish provides an affordable, automated, and data-driven training solution
-
-Helps companies comply with mandatory security-awareness standards
+Subscription payments, multi-tenant accounts.
 
 👥 Team
 
-ZeroPhish is built with passion and security-centric thinking, designed to help organizations stay ahead of attackers — one click at a time.
+ZeroPhish was built for the Cybersecurity Hackathon 2025
+by a team of developers passionate about AI + Security.
