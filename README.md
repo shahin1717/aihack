@@ -1,78 +1,37 @@
-ZeroPhish
+🔥 ZeroPhish – AI-Powered Phishing Simulation Platform
+📌 SMTP Integration
+✉️ Email Sending Methods
 
-AI-Powered Phishing Simulation & Employee Security Awareness Platform
+ZeroPhish can send phishing simulations using either real corporate email accounts or sandbox SMTP servers.
 
-📌 Live Pitch Deck:
-https://www.canva.com/design/DAG6EMjJKX4/utMfN2hMYPh47URZBycwAQ/view?utm_content=DAG6EMjJKX4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hfcfcb6cc85
+Supported options:
 
-🚀 Overview
+Gmail SMTP
 
-ZeroPhish is an AI-driven platform that helps companies test, measure, and improve employee resistance to phishing attacks.
+Workplace / Company SMTP
 
-The platform automates everything:
-✓ AI-generated email bodies
-✓ AI-generated subjects
-✓ Phishing campaign scheduling
-✓ Click & open tracking
-✓ Admin dashboard
-✓ SMTP email delivery
-✓ Logging, reporting & analytics
+Custom SMTP server configuration
 
-ZeroPhish strengthens cybersecurity awareness while saving companies time, money, and risk.
+Local test SMTP
 
-✨ Features
-AI-Powered Campaign Engine
+Emails include:
 
-AI-generated phishing email text
+AI-generated subject
 
-AI-generated subjects
+AI-generated body content
 
-Personalized email bodies per employee
+Tracking pixel
 
-Multi-recipient dispatch
+Click-tracking link
 
-Schedule campaigns in advance
+Fully logged events (opened, clicked, failed, etc.)
 
-Automatic logging & status tracking
-
-Tracking System
-
-Pixel-based open tracking
-
-Link-based click tracking
-
-Dashboard with analytics
-
-Historical reports
-
-SMTP Integration
-
-Send campaigns using:
-
-Gmail
-
-Workplace
-
-Corporate SMTP servers
-
-Testing SMTP servers
-
-Admin Management
-
-Employee database
-
-Departments
-
-Email logs
-
-Campaign performance
-
-🧱 Tech Stack
-Backend
+🧱 Backend Tech Stack
+🔥 Core Backend
 
 FastAPI
 
-Python 3
+Python
 
 SQLAlchemy ORM
 
@@ -80,15 +39,17 @@ MySQL / PostgreSQL
 
 JWT Authentication
 
-SMTP email delivery
+SMTP (email sending)
 
-Tracking endpoints:
+AI Email Generator (OpenAI / Gemini)
 
-/track/open/{recipient_id}
+🛰 Tracking Endpoints
 
-/track/click/{recipient_id}?redirect=URL
+GET /track/open/{recipient_id} – open tracking pixel
 
-Frontend
+GET /track/click/{recipient_id} – click redirect logger
+
+🎨 Frontend
 
 HTML
 
@@ -96,109 +57,51 @@ CSS
 
 JavaScript
 
-Responsive admin dashboard
+Fully responsive admin dashboard
 
-📦 Project Structure
-ZeroPhish/
-│
-├── app/
-│   ├── routers/
-│   │   ├── auth_router.py
-│   │   ├── employee_router.py
-│   │   ├── campaign_router.py
-│   │   ├── department_router.py
-│   │   ├── track_router.py
-│   │   └── dashboard_router.py
-│   ├── database/
-│   │   ├── connection.py
-│   │   └── models.py
-│   ├── services/
-│   │   ├── email_sender.py
-│   │   ├── ai_generator.py
-│   │   └── utils.py
-│   ├── config.py
-│   └── main.py
-│
-├── frontend/
-│   ├── employees.html
-│   ├── campaigns.html
-│   ├── auth.html
-│   ├── dashboard.html
-│   ├── css/
-│   └── js/
-│
-└── run.py
+Employee manager, campaign creator, logs viewer
 
-⚙️ Installation
-1. Clone the repo
-git clone https://github.com/yourusername/ZeroPhish.git
-cd ZeroPhish
+🏗 Example Architecture Diagram (like screenshot style)
+                   ┌───────────────────────┐
+                   │    GitHub Repository  │
+                   └───────────┬───────────┘
+                               │
+                               ▼
+                   ┌───────────────────────┐
+                   │ GitHub Actions CI/CD  │
+                   │ - run tests           │
+                   │ - build backend       │
+                   │ - deploy              │
+                   └───────────┬───────────┘
+                               │
+                               ▼
+                   ┌───────────────────────┐
+                   │   Render Deployment   │
+                   │ - auto start server   │
+                   │ - env variables       │
+                   └───────────┬───────────┘
+                               ▼
 
-2. Create virtual environment
-python -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-.\.venv\Scripts\activate    # Windows
-
-3. Install dependencies
-pip install -r requirements.txt
-
-4. Configure Environment
-
-Create .env:
-
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your@gmail.com
-SMTP_PASSWORD=yourpass
-SMTP_FROM_EMAIL=your@gmail.com
-
-DATABASE_URL=mysql+pymysql://root:pass@localhost/zerophish
-JWT_SECRET=supersecret
-
-5. Run
-python run.py
-
-🌐 Deployment
-Render / Railway / AlwaysData
-
-Expose port 8000
-
-Use python run.py
-
-Make sure DB is accessible
-
-Add environment variables
-
-Configure SMTP (App Password for Gmail)
-
-🛡 Security Notes
-
-Never use personal Gmail passwords
-
-Use App Passwords or dedicated SMTP
-
-Always run behind HTTPS in production
-
-Limit who can access the admin dashboard
-
-🧭 Roadmap
-M1 — MVP Completed ✔
-
-Backend, frontend, AI generator, tracking, SMTP sending.
-
-M2 — Pilot Users
-
-Deploy to 1–2 companies and gather data.
-
-M3 — Integrations
-
-Slack alerts, export reports, auto-training.
-
-M4 — Scale
-
-Subscription payments, multi-tenant accounts.
-
-👥 Team
-
-ZeroPhish was built for the Cybersecurity Hackathon 2025
-by a team of developers passionate about AI + Security.
+       ┌───────────────────────────────────────────────────┐
+       │                 ZeroPhish Platform                │
+       │                                                   │
+       │  ┌──────────────────────────────┐  ┌────────────┐ │
+       │  │         FastAPI API          │  │   Frontend │ │
+       │  │ - employees, departments     │  │ - HTML/CSS │ │
+       │  │ - auth (JWT)                 │  │ - JS UI    │ │
+       │  │ - campaigns, tracking        │  └────────────┘ │
+       │  └──────────────────────────────┘                 │
+       │                                                   │
+       │  ┌──────────────────────────────┐                 │
+       │  │        SMTP Server           │                 │
+       │  │ - Gmail / Workplace / custom │                 │
+       │  │ - sends tracked emails       │                 │
+       │  └──────────────────────────────┘                 │
+       │                                                   │
+       │  ┌──────────────────────────────┐                 │
+       │  │         Database             │                 │
+       │  │ - employees                  │                 │
+       │  │ - campaigns & logs           │                 │
+       │  │ - open/click events          │                 │
+       │  └──────────────────────────────┘                 │
+       └───────────────────────────────────────────────────┘
