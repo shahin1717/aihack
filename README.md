@@ -1,107 +1,189 @@
-🔥 ZeroPhish – AI-Powered Phishing Simulation Platform
-📌 SMTP Integration
-✉️ Email Sending Methods
+# 🛡️ ZeroPhish  
+**AI-powered phishing simulation & employee security-awareness platform**
 
-ZeroPhish can send phishing simulations using either real corporate email accounts or sandbox SMTP servers.
+ZeroPhish helps companies test, measure, and improve their employees’ resistance to phishing attacks using AI-generated phishing emails, real-time tracking, and security scoring.
 
-Supported options:
+---
 
-Gmail SMTP
+## 🚀 Features
 
-Workplace / Company SMTP
+- **AI-generated phishing emails** (HTML body + subject)
+- **Department & employee management**
+- **SMTP integration**  
+  - Gmail  
+  - Workplace  
+  - Custom SMTP servers
+- **Multi-recipient campaign sending**
+- **Open-tracking pixel**
+- **Click-tracking with redirect**
+- **Awareness scoring system**
+- **Secure JWT authentication**
+- **FastAPI backend + responsive JS frontend**
 
-Custom SMTP server configuration
+---
 
-Local test SMTP
+## 🛠 Tech Stack
 
-Emails include:
+### 🔥 Backend
+- **FastAPI**, **Python**
+- **SQLAlchemy ORM**
+- **MySQL / PostgreSQL**
+- **JWT Authentication**
+- **SMTP email sending**
+- **OpenAI / Google Gemini AI**
 
-AI-generated subject
+### 🎨 Frontend
+- **HTML / CSS / JavaScript**
+- Custom responsive admin interface
 
-AI-generated body content
+---
 
-Tracking pixel
+## 🏗️ Architecture
 
-Click-tracking link
+```
+┌─────────────────┐     ┌────────────────────┐     ┌──────────────────┐
+│   GitHub Repo   │───▶ │ GitHub Actions CI  │───▶ │ Render Deployment │
+└─────────────────┘     └────────────────────┘     └──────────────────┘
+                              │                             │
+                              ▼                             ▼
 
-Fully logged events (opened, clicked, failed, etc.)
+                    ┌─────────────────────┐    ┌─────────────────────┐
+                    │     FastAPI API     │    │     Frontend UI      │
+                    │  Auth / Employees   │    │  Dashboard / Campaign │
+                    │  Departments        │    │  Tracking Pages       │
+                    │  Campaigns/Tracking │    └─────────────────────┘
+                    └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │      SMTP Server     │
+                    │ Gmail / Workplace    │
+                    │ Custom SMTP          │
+                    └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │    Database (SQL)   │
+                    │ Employees           │
+                    │ Campaigns           │
+                    │ Recipients          │
+                    │ Tracking Events     │
+                    └─────────────────────┘
+```
 
-🧱 Backend Tech Stack
-🔥 Core Backend
+---
 
-FastAPI
+## 📦 Installation
 
-Python
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/zerophish.git
+cd zerophish
+```
 
-SQLAlchemy ORM
+### 2. Create a virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate       # macOS / Linux
+.venv\Scripts\Activate.ps1      # Windows
+```
 
-MySQL / PostgreSQL
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
-JWT Authentication
+### 4. Run the server
+```bash
+python run.py
+```
 
-SMTP (email sending)
+Open the dashboard:  
+👉 **http://127.0.0.1:8000/employees.html**
 
-AI Email Generator (OpenAI / Gemini)
+---
 
-🛰 Tracking Endpoints
+## ⚙️ Environment Variables
 
-GET /track/open/{recipient_id} – open tracking pixel
+Create a `.env` file:
 
-GET /track/click/{recipient_id} – click redirect logger
+```
+SECRET_KEY=your-secret-key
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-email-password
+DB_URL=mysql+pymysql://user:password@localhost/zerophish
+OPENAI_API_KEY=your-key
+```
 
-🎨 Frontend
+---
 
-HTML
+## ✉️ Example Email With Tracking
 
-CSS
+```html
+<p>Dear Employee,</p>
+<p>Suspicious activity detected. Please verify your account.</p>
 
-JavaScript
+<a href="https://yourdomain.com/track/click/42?redirect=https://google.com">
+  Verify Your Account
+</a>
 
-Fully responsive admin dashboard
+<img src="https://yourdomain.com/track/open/42" width="1" height="1" />
+```
 
-Employee manager, campaign creator, logs viewer
+---
 
-🏗 Example Architecture Diagram (like screenshot style)
-                   ┌───────────────────────┐
-                   │    GitHub Repository  │
-                   └───────────┬───────────┘
-                               │
-                               ▼
-                   ┌───────────────────────┐
-                   │ GitHub Actions CI/CD  │
-                   │ - run tests           │
-                   │ - build backend       │
-                   │ - deploy              │
-                   └───────────┬───────────┘
-                               │
-                               ▼
-                   ┌───────────────────────┐
-                   │   Render Deployment   │
-                   │ - auto start server   │
-                   │ - env variables       │
-                   └───────────┬───────────┘
-                               ▼
+## 🔌 Tracking Endpoints
 
-       ┌───────────────────────────────────────────────────┐
-       │                 ZeroPhish Platform                │
-       │                                                   │
-       │  ┌──────────────────────────────┐  ┌────────────┐ │
-       │  │         FastAPI API          │  │   Frontend │ │
-       │  │ - employees, departments     │  │ - HTML/CSS │ │
-       │  │ - auth (JWT)                 │  │ - JS UI    │ │
-       │  │ - campaigns, tracking        │  └────────────┘ │
-       │  └──────────────────────────────┘                 │
-       │                                                   │
-       │  ┌──────────────────────────────┐                 │
-       │  │        SMTP Server           │                 │
-       │  │ - Gmail / Workplace / custom │                 │
-       │  │ - sends tracked emails       │                 │
-       │  └──────────────────────────────┘                 │
-       │                                                   │
-       │  ┌──────────────────────────────┐                 │
-       │  │         Database             │                 │
-       │  │ - employees                  │                 │
-       │  │ - campaigns & logs           │                 │
-       │  │ - open/click events          │                 │
-       │  └──────────────────────────────┘                 │
-       └───────────────────────────────────────────────────┘
+| Endpoint | Description |
+|---------|-------------|
+| `GET /track/open/{id}` | Logs the *open* event |
+| `GET /track/click/{id}?redirect=URL` | Logs click event & redirects user |
+
+---
+
+## 📁 Project Structure
+
+```
+zerophish/
+├── app/
+│   ├── routers/
+│   ├── database/
+│   ├── static/
+│   ├── templates/
+│   ├── email_sender.py
+│   └── main.py
+├── requirements.txt
+├── run.py
+└── README.md
+```
+
+---
+
+## 📊 Dashboard Features
+
+- Campaign analytics  
+- Open rate / click rate  
+- Per-employee and per-department scores  
+- Tracking logs  
+- AI email generator  
+- Admin authentication  
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo  
+2. Create a feature branch  
+3. Commit changes  
+4. Push your branch  
+5. Open a Pull Request  
+
+---
+
+## 📄 License
+
+MIT License  
+https://choosealicense.com/licenses/mit/
+
