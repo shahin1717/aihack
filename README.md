@@ -1,37 +1,38 @@
-🔥 ZeroPhish – AI-Powered Phishing Simulation Platform
-📌 SMTP Integration
-✉️ Email Sending Methods
+🛡️ ZeroPhish
 
-ZeroPhish can send phishing simulations using either real corporate email accounts or sandbox SMTP servers.
+AI-powered phishing simulation & employee awareness training platform
 
-Supported options:
+ZeroPhish is a cybersecurity tool that helps companies test, measure, and improve their employees’ resistance to phishing attacks.
+It sends AI-generated phishing emails, tracks interactions, and provides actionable analytics.
 
-Gmail SMTP
+🚀 Features
 
-Workplace / Company SMTP
+AI-generated subjects + HTML phishing templates
 
-Custom SMTP server configuration
+Multi-recipient campaign sending
 
-Local test SMTP
+SMTP support (Gmail, corporate, custom SMTP)
 
-Emails include:
+Email open tracking via invisible pixel
 
-AI-generated subject
+Click tracking with redirect logging
 
-AI-generated body content
+Department & employee management
 
-Tracking pixel
+Awareness scoring
 
-Click-tracking link
+Analytics dashboard
 
-Fully logged events (opened, clicked, failed, etc.)
+Secure authentication (JWT)
 
-🧱 Backend Tech Stack
-🔥 Core Backend
+Modern FastAPI backend + responsive JS frontend
+
+🛠 Tech Stack
+Backend
 
 FastAPI
 
-Python
+Python 3.10+
 
 SQLAlchemy ORM
 
@@ -39,69 +40,149 @@ MySQL / PostgreSQL
 
 JWT Authentication
 
-SMTP (email sending)
+SMTP mail sending
 
-AI Email Generator (OpenAI / Gemini)
+AI providers (OpenAI / Gemini)
 
-🛰 Tracking Endpoints
+Frontend
 
-GET /track/open/{recipient_id} – open tracking pixel
+HTML / CSS / JavaScript
 
-GET /track/click/{recipient_id} – click redirect logger
+Responsive admin interface
 
-🎨 Frontend
+🏗️ Architecture
+┌─────────────────┐     ┌────────────────────┐     ┌──────────────────┐
+│   GitHub Repo   │───▶ │ GitHub Actions CI  │───▶ │ Render Deployment │
+└─────────────────┘     └────────────────────┘     └──────────────────┘
+                              │                             │
+                              ▼                             ▼
 
-HTML
+                    ┌─────────────────────┐    ┌─────────────────────┐
+                    │     FastAPI API     │    │     Frontend UI      │
+                    │ - Auth (JWT)        │    │ - Dashboard          │
+                    │ - Employees         │    │ - Campaign builder   │
+                    │ - Departments       │    │ - Tracking views     │
+                    │ - Campaigns         │    └─────────────────────┘
+                    │ - Tracking          │
+                    └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │     SMTP Server     │
+                    │ Gmail / Workplace   │
+                    │ Custom SMTP         │
+                    └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │    Database (SQL)   │
+                    │ employees           │
+                    │ campaigns           │
+                    │ recipients          │
+                    │ open/click logs     │
+                    └─────────────────────┘
 
-CSS
+📦 Installation
 
-JavaScript
+Clone the repository:
 
-Fully responsive admin dashboard
+git clone https://github.com/your-username/zerophish.git
+cd zerophish
 
-Employee manager, campaign creator, logs viewer
 
-🏗 Example Architecture Diagram (like screenshot style)
-                   ┌───────────────────────┐
-                   │    GitHub Repository  │
-                   └───────────┬───────────┘
-                               │
-                               ▼
-                   ┌───────────────────────┐
-                   │ GitHub Actions CI/CD  │
-                   │ - run tests           │
-                   │ - build backend       │
-                   │ - deploy              │
-                   └───────────┬───────────┘
-                               │
-                               ▼
-                   ┌───────────────────────┐
-                   │   Render Deployment   │
-                   │ - auto start server   │
-                   │ - env variables       │
-                   └───────────┬───────────┘
-                               ▼
+Create virtual environment:
 
-       ┌───────────────────────────────────────────────────┐
-       │                 ZeroPhish Platform                │
-       │                                                   │
-       │  ┌──────────────────────────────┐  ┌────────────┐ │
-       │  │         FastAPI API          │  │   Frontend │ │
-       │  │ - employees, departments     │  │ - HTML/CSS │ │
-       │  │ - auth (JWT)                 │  │ - JS UI    │ │
-       │  │ - campaigns, tracking        │  └────────────┘ │
-       │  └──────────────────────────────┘                 │
-       │                                                   │
-       │  ┌──────────────────────────────┐                 │
-       │  │        SMTP Server           │                 │
-       │  │ - Gmail / Workplace / custom │                 │
-       │  │ - sends tracked emails       │                 │
-       │  └──────────────────────────────┘                 │
-       │                                                   │
-       │  ┌──────────────────────────────┐                 │
-       │  │         Database             │                 │
-       │  │ - employees                  │                 │
-       │  │ - campaigns & logs           │                 │
-       │  │ - open/click events          │                 │
-       │  └──────────────────────────────┘                 │
-       └───────────────────────────────────────────────────┘
+python -m venv .venv
+source .venv/bin/activate     # Linux/Mac
+# OR
+.venv\Scripts\Activate.ps1    # Windows
+
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+
+Run the server:
+
+python run.py
+
+
+Open in browser:
+http://127.0.0.1:8000
+
+⚙️ Environment Variables
+
+Create a .env file:
+
+SECRET_KEY=your-secret
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-password
+DB_URL=mysql+pymysql://user:pass@localhost/zerophish
+OPENAI_API_KEY=xxxx
+
+✉️ Usage
+Sending a phishing campaign (example)
+from app.email_sender import send_campaign_emails
+from app.database.connection import get_db
+
+db = get_db()
+
+send_campaign_emails(
+    db=db,
+    campaign=my_campaign,
+    base_url="https://yourdomain.com",
+    redirect_url="https://example.com"
+)
+
+AI-generated email example
+<p>Dear Employee,</p>
+<p>We detected unusual login activity. Please verify your account.</p>
+<a href="https://yourdomain.com/track/click/12">Verify Now</a>
+<img src="https://yourdomain.com/track/open/12" width="1" height="1" />
+
+🔌 Tracking Endpoints
+GET /track/open/{recipient_id}
+Logs an email open event.
+
+GET /track/click/{recipient_id}?redirect=https://site.com
+Logs a click event and redirects user.
+
+📁 Project Structure
+zerophish/
+├── app/
+│   ├── routers/
+│   ├── database/
+│   ├── templates/
+│   ├── static/
+│   └── email_sender.py
+├── run.py
+├── requirements.txt
+└── README.md
+
+📊 Dashboard Highlights
+
+Sent emails
+
+Open rate
+
+Click rate
+
+Per-department awareness score
+
+Employee-level event history
+
+🤝 Contributing
+
+Pull requests are welcome!
+
+To contribute:
+
+git checkout -b feature/improvement
+git commit -m "Improved campaign logic"
+git push origin feature/improvement
+
+
+Please open an issue for big changes.
