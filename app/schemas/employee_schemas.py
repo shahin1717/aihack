@@ -5,15 +5,14 @@ from pydantic import BaseModel, EmailStr
 class EmployeeCreate(BaseModel):
     full_name: str
     email: EmailStr
-    department: str | None = None
-
-
+    department_id: int
+    
 # READ employee (response)
 class EmployeeResponse(BaseModel):
     id: int
     full_name: str
-    email: EmailStr
-    department: str | None
+    email: str
+    department_name: str | None
     awareness_score: int
 
     class Config:

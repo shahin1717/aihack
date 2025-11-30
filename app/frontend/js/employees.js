@@ -1,63 +1,111 @@
-// Employees page logic
+pgRequireAuth();
+pgInitLogout();
+pgUpdateAuthBadge();
 
-document.addEventListener("DOMContentLoaded", () => {
-    pgRequireAuth();
-    pgInitLogout();
-    pgUpdateAuthBadge();
+// DOM elements
+const depNameInput = document.getElementById("dep-name");
+const btnCreateDep = document.getElementById("btn-create-department");
+const depStatus = document.getElementById("dep-status");
 
-    const btnReload = document.getElementById("btn-reload-employees");
-    const btnCreate = document.getElementById("btn-create-employee");
+const empNameInput = document.getElementById("emp-name");
+const empEmailInput = document.getElementById("emp-email");
+const depSelect = document.getElementById("department");
+const btnCreateEmployee = document.getElementById("btn-create-employee");
+const empStatus = document.getElementById("emp-status");
 
-    if (btnReload) btnReload.onclick = loadEmployees;
-    if (btnCreate) btnCreate.onclick = createEmployee;
+const btnReloadEmployees = document.getElementById("btn-reload-employees");
+const empTableBody = document.getElementById("emp-table");
 
-    // auto load on page open
-    loadEmployees();
-});
 
-async function loadEmployees() {
-    const status = document.getElementById("emp-status");
-    const tbody = document.getElementById("emp-table");
-    tbody.innerHTML = "";
-    status.textContent = "Loading...";
+// ------------------------------------------------------
+// LOAD DEPARTMENTS INTO DROPDOWN
+// ------------------------------------------------------
+async function loadDepartments() {
+    const select = document.getElementById("department");
+    if (!select) return;
+
+    select.innerHTML = `<option value="">-- Select department --</option>`;
 
     try {
-        const res = await fetch(`${API_BASE}/employees/`, {
+        const res = await fetch(`${API_BASE}/departments/`, {
+            method: "GET",
             headers: pgAuthHeaders()
         });
 
-        const data = await res.json();
         if (!res.ok) {
-            status.textContent = data.detail || "Error";
+            console.error("Failed to load departments");
             return;
         }
 
-        status.textContent = "";
+        const deps = await res.json();
 
-        data.forEach(emp => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${emp.id}</td>
-                <td>${emp.full_name}</td>
-                <td>${emp.email}</td>
-                <td>${emp.department || "-"}</td>
-                <td>${emp.awareness_score}</td>
-            `;
-            tbody.appendChild(tr);
+        deps.forEach(dep => {
+            const opt = document.createElement("option");
+            opt.value = dep.id;
+            opt.textContent = dep.name;
+            select.appendChild(opt);
         });
 
     } catch (err) {
-        status.textContent = "Network error";
+        console.error("Error loading departments", err);
     }
 }
 
-async function createEmployee() {
-    const full_name = document.getElementById("emp-name").value;
-    const email = document.getElementById("emp-email").value;
-    const department = document.getElementById("emp-dept").value || null;
-    const status = document.getElementById("emp-status");
 
-    status.textContent = "Creating...";
+
+// ------------------------------------------------------
+// CREATE A DEPARTMENT
+// ------------------------------------------------------
+async function createDepartment() {
+    const name = depNameInput.value.trim();
+    if (!name) {
+        depStatus.textContent = "Enter department name.";
+        return;
+    }
+
+    depStatus.textContent = "Creating...";
+
+    try {
+        const res = await fetch(`${API_BASE}/departments/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...pgAuthHeaders()
+            },
+            body: JSON.stringify({ name })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            depStatus.textContent = data.detail || "Failed.";
+            return;
+        }
+
+        depStatus.textContent = `Department '${data.name}' created.`;
+        depNameInput.value = "";
+        loadDepartments(); // refresh dropdown
+
+    } catch {
+        depStatus.textContent = "Network error.";
+    }
+}
+
+
+// ------------------------------------------------------
+// CREATE EMPLOYEE
+// ------------------------------------------------------
+async function createEmployee() {
+    const full_name = empNameInput.value.trim();
+    const email = empEmailInput.value.trim();
+    const department_id = parseInt(depSelect.value);
+
+    if (!full_name || !email || !department_id) {
+        empStatus.textContent = "Fill name, email and department.";
+        return;
+    }
+
+    empStatus.textContent = "Creating employee...";
 
     try {
         const res = await fetch(`${API_BASE}/employees/`, {
@@ -66,19 +114,79 @@ async function createEmployee() {
                 "Content-Type": "application/json",
                 ...pgAuthHeaders()
             },
-            body: JSON.stringify({ full_name, email, department })
+            body: JSON.stringify({
+                full_name,
+                email,
+                department_id
+            })
         });
 
         const data = await res.json();
+
         if (!res.ok) {
-            status.textContent = data.detail || "Error";
+            empStatus.textContent = data.detail || "Error creating employee.";
             return;
         }
 
-        status.textContent = "Employee created.";
+        empStatus.textContent = `Employee '${data.full_name}' added.`;
+        empNameInput.value = "";
+        empEmailInput.value = "";
+        depSelect.value = "";
+
         loadEmployees();
 
-    } catch (err) {
-        status.textContent = "Network error";
+    } catch {
+        empStatus.textContent = "Network error.";
     }
 }
+
+
+// ------------------------------------------------------
+// LOAD EMPLOYEES TABLE
+// ------------------------------------------------------
+async function loadEmployees() {
+    empTableBody.innerHTML = "";
+
+    try {
+        const res = await fetch(`${API_BASE}/employees/`, {
+            headers: pgAuthHeaders()
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            empTableBody.innerHTML = "<tr><td colspan='5'>Failed to load.</td></tr>";
+            return;
+        }
+
+        data.forEach(emp => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${emp.id}</td>
+                <td>${emp.full_name}</td>
+                <td>${emp.email}</td>
+                <td>${emp.department_name || "-"}</td>
+                <td>${emp.awareness_score}</td>
+            `;
+            empTableBody.appendChild(tr);
+        });
+
+    } catch (err) {
+        empTableBody.innerHTML = "<tr><td colspan='5'>Error.</td></tr>";
+    }
+}
+
+
+// ------------------------------------------------------
+// EVENT BINDINGS
+// ------------------------------------------------------
+if (btnCreateDep) btnCreateDep.addEventListener("click", createDepartment);
+if (btnCreateEmployee) btnCreateEmployee.addEventListener("click", createEmployee);
+if (btnReloadEmployees) btnReloadEmployees.addEventListener("click", loadEmployees);
+
+
+// ------------------------------------------------------
+// INIT
+// ------------------------------------------------------
+loadDepartments();
+loadEmployees();

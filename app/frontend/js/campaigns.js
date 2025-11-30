@@ -25,7 +25,8 @@ const btnReloadCampaigns = document.getElementById("btn-reload-campaigns");
 const btnUseAll          = document.getElementById("btn-use-all");
 
 const tableBody          = document.querySelector("#camp-table tbody");
-
+const deptSelect = document.getElementById("camp-dept");
+const btnUseDept = document.getElementById("btn-use-dept");
 // -------- helpers --------
 function parseEmployeeIds(raw) {
     return raw
@@ -36,6 +37,58 @@ function parseEmployeeIds(raw) {
 
 function setButtonState(button, disabled) {
     if (button) button.disabled = disabled;
+}
+
+async function loadDepartments() {
+    if (!deptSelect) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/departments/`, {
+            headers: pgAuthHeaders()
+        });
+        const data = await res.json();
+
+        deptSelect.innerHTML = '<option value="">-- Select department --</option>';
+
+        data.forEach(dep => {
+            deptSelect.innerHTML += `<option value="${dep.id}">${dep.name}</option>`;
+        });
+    } catch (e) {
+        console.error("Failed to load departments", e);
+    }
+}
+
+loadDepartments();
+loadCampaigns();
+
+async function useDepartmentEmployees() {
+    if (!deptSelect || !deptSelect.value) {
+        campStatusSpan.textContent = "Select a department first.";
+        return;
+    }
+
+    const depId = deptSelect.value;
+    campStatusSpan.textContent = "Loading department employees...";
+
+    try {
+        const res = await fetch(`${API_BASE}/employees/?department_id=${depId}`, {
+            headers: pgAuthHeaders()
+        });
+
+        const data = await res.json();
+        const ids = data.map(emp => emp.id);
+
+        employeeIdsInput.value = ids.join(", ");
+        campStatusSpan.textContent = `Selected ${ids.length} employees from department "${deptSelect.options[deptSelect.selectedIndex].text}".`;
+
+    } catch (e) {
+        campStatusSpan.textContent = "Failed to load employees for this department.";
+    }
+}
+
+
+if (btnUseDept) {
+    btnUseDept.addEventListener("click", useDepartmentEmployees);
 }
 
 // Prefill sender defaults if empty

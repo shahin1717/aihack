@@ -10,7 +10,7 @@ from app.routers.campaign_router import router as campaign_router
 from app.routers.track_router import router as track_router
 from app.routers.dashboard_router import router as dashboard_router
 from app.routers.ai_router import router as ai_router
-
+from app.routers.department_router import router as department_router
 from app.database.connection import engine
 from app.database.models import Base
 
@@ -67,6 +67,7 @@ app.include_router(campaign_router)
 app.include_router(track_router)
 app.include_router(dashboard_router)
 app.include_router(ai_router)
+app.include_router(department_router)
 
 # --------------------------
 # Health check

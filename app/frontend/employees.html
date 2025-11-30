@@ -13,10 +13,9 @@
 </header>
 
 <nav class="navbar">
-    <a id="nav-auth" href="/auth.html">Auth</a>
-    <a id="nav-employees" href="/employees.html" class="active">Employees</a>
-    <a id="nav-campaigns" href="/campaigns.html">Campaigns</a>
-    <a id="nav-dashboard" href="/dashboard.html">Dashboard</a>
+    <a href="/employees.html" class="active">Employees</a>
+    <a href="/campaigns.html">Campaigns</a>
+    <a href="/dashboard.html">Dashboard</a>
 
     <div class="navbar-right">
         <span class="pill" id="auth-email">Not logged in</span>
@@ -26,6 +25,18 @@
 
 <div class="container">
 
+    <!-- Add Department -->
+    <div class="card">
+        <h2>Create Department</h2>
+
+        <label for="dep-name">Department name</label>
+        <input id="dep-name" type="text">
+
+        <button id="btn-create-department">Create department</button>
+        <small id="dep-status"></small>
+    </div>
+
+    <!-- Add Employee -->
     <div class="card">
         <h2>Add Employee</h2>
 
@@ -35,13 +46,14 @@
         <label for="emp-email">Email</label>
         <input id="emp-email" type="email">
 
-        <label for="emp-dept">Department (optional)</label>
-        <input id="emp-dept" type="text">
+        <label>Department</label>
+        <select id="department"></select>
 
         <button id="btn-create-employee">Create employee</button>
         <small id="emp-status"></small>
     </div>
 
+    <!-- Employees Table -->
     <div class="card">
         <h2>Employees</h2>
         <button class="btn-secondary" id="btn-reload-employees">Reload</button>
@@ -62,8 +74,8 @@
 
 </div>
 
-<script src="/static/js/utils.js" defer></script>
-<script src="/static/js/employees.js" defer></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/employees.js"></script>
 
 </body>
 </html>
